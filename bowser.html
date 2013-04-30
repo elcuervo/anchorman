@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Simple getUserMedia() test</title>
+    <script type="text/javascript">
+
+      window.onload = function () {
+        setTimeout(function () {
+          navigator.webkitGetUserMedia("audio, video", function (stream) {
+            document.getElementsByTagName("video")[0].src = window.webkitURL.createObjectURL(stream);
+          });
+          var pc = new PeerConnection();
+        }, 2000);
+      };
+    </script>
+  </head>
+  <body>
+    <video autoplay>
+    </body>
+  </html>

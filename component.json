@@ -1,0 +1,7 @@
+{
+  "name": "anchorman",
+  "version": "0.0.0",
+  "dependencies": {
+    "q": "~0.9.3"
+  }
+}
