@@ -6,7 +6,6 @@
 </head>
 <body>
   <button id="call">CALL</button>
-  <button id="test">TEST</button>
   <script type="text/javascript" src="lib/q/q.min.js"></script>
   <script type="text/javascript" src="lib/anchorman/anchorman.js"></script>
   <script type="text/javascript" src="lib/rsvp.js/index.js"></script>
@@ -14,9 +13,9 @@
   <script type="text/javascript">
       var anchorman = new Anchorman("ws://localhost:9000/session");
 
-      var appendCamera = function(stream) {
+      anchorman.camera.receive(function(stream) {
         console.log("Camera ready", stream);
-        var blob = URL.createObjectURL(stream);
+        var blob = URL.createObjectURL(stream.stream);
         var video = document.createElement("video");
         document.body.appendChild(video);
 
@@ -25,43 +24,12 @@
         video.autoplay = true;
         video.width = 400;
         video.height = 400;
-      }
-
-      anchorman.connection.incoming(appendCamera);
-
-      anchorman.connection.candidates(function(candidate) {
-        anchorman.transport.trigger("candidate", candidate)
-      });
-
-      anchorman.transport.on("candidate", function(candidate) {
-        anchorman.connection.addCandidate(candidate);
-      });
-
-      anchorman.transport.on("answer", function(answer) {
-        anchorman.connection.agree(answer);
-      });
-
-      anchorman.transport.on("offer", function(offer) {
-        anchorman.connection.accept(offer).then(function(answer) {
-          anchorman.transport.trigger("answer", answer);
-        });
       });
 
       document.getElementById("call").addEventListener("click", function() {
         var camera = anchorman.camera;
-
-        camera.ready(function(stream) {
-          anchorman.connection.offer.then(function(offer) {
-            anchorman.transport.trigger("offer", offer);
-          });
-          appendCamera(stream);
-        });
+        camera.broadcast();
       });
-
-
-      //anchorman.transport.on("call", function(offer) {
-      //  anchorman.accept(offer);
-      //})
   </script>
 </body>
 </html>
