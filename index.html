@@ -5,12 +5,15 @@
   <title></title>
 </head>
 <body>
-  <button id="call">CALL</button>
+  <button id="screen">Screen</button>
+  <button id="camera">Camera</button>
+
   <script type="text/javascript" src="lib/q/q.min.js"></script>
   <script type="text/javascript" src="lib/anchorman/anchorman.js"></script>
   <script type="text/javascript" src="lib/rsvp.js/index.js"></script>
 
   <script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {
       var anchorman = new Anchorman("ws://localhost:9000/session");
 
       anchorman.camera.receive(function(stream) {
@@ -26,10 +29,14 @@
         video.height = 400;
       });
 
-      document.getElementById("call").addEventListener("click", function() {
-        var camera = anchorman.camera;
-        camera.broadcast();
+      document.getElementById("screen").addEventListener("click", function() {
+        anchorman.screen.share();
       });
+
+      document.getElementById("camera").addEventListener("click", function() {
+        anchorman.camera.broadcast();
+      });
+    });
   </script>
 </body>
 </html>
