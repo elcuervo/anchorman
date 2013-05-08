@@ -3,11 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <title></title>
+  <style type="text/css">
+    .me {
+      z-index: 2;
+      position: absolute;
+      top: 350px;
+      right: 200px;
+    }
+    .them { z-index: 1 }
+  </style>
 </head>
 <body>
   <button id="screen">Screen</button>
   <button id="camera">Camera</button>
   <button id="data">Data</button>
+
+  <div id="videos"></div>
 
   <script type="text/javascript" src="lib/q/q.min.js"></script>
   <script type="text/javascript" src="lib/anchorman/anchorman.js"></script>
@@ -17,18 +28,22 @@
     document.addEventListener("DOMContentLoaded", function() {
       window.anchorman = new Anchorman("ws://moya.clocktower.co:9000/session");
 
-      anchorman.camera.receive(function(stream) {
-        console.log("Camera ready", stream);
-        var blob = URL.createObjectURL(stream.stream);
+      var addVideo = function(stream, size, className) {
+        console.log("Camera ready", size);
+        var blob = URL.createObjectURL(stream);
         var video = document.createElement("video");
-        document.body.appendChild(video);
+
+        document.getElementById("videos").appendChild(video);
 
         video.src = blob;
+        video.className = className;
         video.crossOrigin = true;
         video.autoplay = true;
-        video.width = 300;
-        video.height = 300;
-      });
+        video.width = size;
+        video.height = size;
+      }
+
+      anchorman.camera.receive(function(stream) { addVideo(stream.stream, 500, "them") });
 
       document.getElementById("data").addEventListener("click", function() {
         anchorman.channels("test");
@@ -39,7 +54,7 @@
       });
 
       document.getElementById("camera").addEventListener("click", function() {
-        anchorman.camera.broadcast();
+        anchorman.camera.broadcast(function(stream) { addVideo(stream, 200, "me") });
       });
     });
   </script>
