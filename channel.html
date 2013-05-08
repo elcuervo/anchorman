@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+</head>
+<body>
+  <button id="screen">Screen</button>
+  <button id="camera">Camera</button>
+  <button id="data">Data</button>
+
+  <input id="chat" type="text" />
+  <ol id="chat_window">
+  </ol>
+
+  <script type="text/javascript" src="lib/q/q.min.js"></script>
+  <script type="text/javascript" src="lib/anchorman/anchorman.js"></script>
+  <script type="text/javascript" src="lib/rsvp.js/index.js"></script>
+
+  <script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+      window.anchorman = new Anchorman("ws://192.168.110.59:9000/session");
+
+      var addMessage = function(who, what) {
+        var li = document.createElement("li");
+        li.textContent = who + " : " +  what;
+        document.getElementById("chat_window").appendChild(li);
+      }
+
+      anchorman.channels("chat").onmessage = function(msg) {
+        var message = msg.data;
+        addMessage("Unknown", message);
+      };
+
+      anchorman.camera.receive(function(stream) {
+        console.log("Camera ready", stream);
+        var blob = URL.createObjectURL(stream.stream);
+        var video = document.createElement("video");
+        document.body.appendChild(video);
+
+        video.src = blob;
+        video.crossOrigin = true;
+        video.autoplay = true;
+        video.width = 800;
+        video.height = 800;
+      });
+
+      document.getElementById("chat").addEventListener("keypress", function(event) {
+        if(event.charCode === 13) {
+          event.stopPropagation();
+          event.preventDefault();
+
+          var message = event.target.value;
+          addMessage("Me", message);
+
+          anchorman.channels("chat").send(message);
+          event.target.value = "";
+        }
+      });
+
+      document.getElementById("data").addEventListener("click", function() {
+        anchorman.data();
+      });
+
+      document.getElementById("screen").addEventListener("click", function() {
+        anchorman.screen.share();
+      });
+
+      document.getElementById("camera").addEventListener("click", function() {
+        anchorman.camera.broadcast();
+      });
+    });
+  </script>
+</body>
+</html>

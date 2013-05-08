@@ -1,0 +1,70 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+</head>
+<body>
+  <button id="call">CALL</button>
+  <button id="test">TEST</button>
+  <script type="text/javascript" src="lib/q/q.min.js"></script>
+  <script type="text/javascript" src="lib/anchorman/anchorman.js"></script>
+  <script type="text/javascript" src="lib/rsvp.js/index.js"></script>
+
+  <script type="text/javascript">
+      var anchorman = new Anchorman("ws://localhost:9000/session");
+      var conn = new RTCPeerConnection(null);
+
+      var appendCamera = function(stream) {
+        console.log("Camera ready", stream);
+        var blob = URL.createObjectURL(stream.stream);
+        var video = document.createElement("video");
+        document.body.appendChild(video);
+
+        video.src = blob;
+        video.crossOrigin = true;
+        video.autoplay = true;
+        video.width = 400;
+        video.height = 400;
+      }
+
+      conn.onicecandidate = function(data) {
+        anchorman.transport.trigger("ice", data.candidate);
+      }
+
+      conn.onaddstream = appendCamera;
+
+      document.getElementById("test").addEventListener("click", function() {
+        navigator.getUserMedia({ video: true, audio: true }, function(stream) {
+          conn.addStream(stream);
+          conn.createOffer(function(session) {
+            conn.setLocalDescription(session);
+            anchorman.transport.trigger("session", session)
+          });
+        });
+      });
+
+      anchorman.transport.on("out", function(answer) {
+        var packet = new RTCSessionDescription(answer);
+        conn.setRemoteDescription(packet)
+      });
+
+      anchorman.transport.on("ice", function(candidate) {
+        if(candidate.candidate) {
+          var candidateObject = new RTCIceCandidate(candidate);
+          if(conn.localDescription && conn.remoteDescription) conn.addIceCandidate(candidateObject)
+        }
+      });
+
+      anchorman.transport.on("session", function(session) {
+        var packet = new RTCSessionDescription(session);
+
+        conn.setRemoteDescription(packet);
+        conn.createAnswer(function(answer) {
+          conn.setLocalDescription(answer);
+          anchorman.transport.trigger("out", answer);
+        });
+      });
+  </script>
+</body>
+</html>
