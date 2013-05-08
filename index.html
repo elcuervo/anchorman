@@ -7,6 +7,7 @@
 <body>
   <button id="screen">Screen</button>
   <button id="camera">Camera</button>
+  <button id="data">Data</button>
 
   <script type="text/javascript" src="lib/q/q.min.js"></script>
   <script type="text/javascript" src="lib/anchorman/anchorman.js"></script>
@@ -14,7 +15,7 @@
 
   <script type="text/javascript">
     document.addEventListener("DOMContentLoaded", function() {
-      var anchorman = new Anchorman("ws://localhost:9000/session");
+      window.anchorman = new Anchorman("ws://192.168.110.59:9000/session");
 
       anchorman.camera.receive(function(stream) {
         console.log("Camera ready", stream);
@@ -25,8 +26,12 @@
         video.src = blob;
         video.crossOrigin = true;
         video.autoplay = true;
-        video.width = 400;
-        video.height = 400;
+        video.width = 800;
+        video.height = 800;
+      });
+
+      document.getElementById("data").addEventListener("click", function() {
+        anchorman.channels("test");
       });
 
       document.getElementById("screen").addEventListener("click", function() {
