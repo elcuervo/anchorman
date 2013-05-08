@@ -15,7 +15,7 @@
 
   <script type="text/javascript">
     document.addEventListener("DOMContentLoaded", function() {
-      window.anchorman = new Anchorman("ws://192.168.110.59:9000/session");
+      window.anchorman = new Anchorman("ws://moya.clocktower.co:9000/session");
 
       anchorman.camera.receive(function(stream) {
         console.log("Camera ready", stream);
@@ -26,8 +26,8 @@
         video.src = blob;
         video.crossOrigin = true;
         video.autoplay = true;
-        video.width = 800;
-        video.height = 800;
+        video.width = 300;
+        video.height = 300;
       });
 
       document.getElementById("data").addEventListener("click", function() {
